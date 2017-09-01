@@ -23,7 +23,7 @@ export class UserController {
     @Get("")
     @Authenticated()
     public find(@QueryParams('username') username: string): Promise<IUser[]> {
-        $log.info('find username=' + username)
+        $log.info('find username =' + username)
         return this.userService.find({
             username
         });

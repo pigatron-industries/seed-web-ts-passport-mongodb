@@ -28,7 +28,6 @@ export class Server extends ServerLoader implements IServerLifecycle {
      * @returns {Server}
      */
     $onMountingMiddlewares(): void|Promise<any> {
-
         const cookieParser = require('cookie-parser');
         const bodyParser = require('body-parser');
         const compress = require('compression');

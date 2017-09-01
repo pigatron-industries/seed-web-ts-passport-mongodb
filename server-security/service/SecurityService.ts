@@ -4,11 +4,13 @@ import {User} from "../schema/UserSchema";
 import UserService from "./UserService";
 import * as Passport from 'passport';
 import {Strategy} from "passport-local";
+import {$log} from "ts-log-debug";
 
 @Service()
 export default class SecurityService {
 
     constructor(private userService: UserService) {
+        console.log("SecurityService.constructor");
         // used to serialize the user for the session
         Passport.serializeUser(SecurityService.serialize);
         // used to deserialize the user
@@ -21,24 +23,29 @@ export default class SecurityService {
     }
 
     public deserialize(id, done) {
-        done(null, this.userService.find(id));
+        this.userService.find(id).then((user) => {
+            done(null, user);
+        });
     }
 
     public initLocalLogin(){
-        Passport.use('login', new Strategy({
-            usernameField:     'username',
-            passwordField:     'password',
+        Passport.use('local', new Strategy({
+            usernameField: 'username',
+            passwordField: 'password',
             passReqToCallback: true // allows us to pass back the entire request to the callback
         }, this.onLocalLogin));
     }
 
     private onLocalLogin = (req, username, password, done) => {
-        //$log.debug('LocalLogin', login, password);
-        this.userService.find({username}).then((user) => {
+        this.userService.find({username}).then((user) => { //TODO make a findOne method
             //TODO check password
-            done(null, user);
+            if(user.length > 0) {
+                $log.debug('Login success username =', username);
+                return done(null, user[0]);
+            }
         }, () => {
-            done(null, false);
+            $log.debug('Login denied username =', username);
+            return done(null, false);
         });
     };
 
